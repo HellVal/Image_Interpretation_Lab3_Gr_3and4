@@ -134,36 +134,27 @@ def overview(data,gt):
 
 
 def calculate_ndvi(red, nir):
-
-
     # Allow division by zero
     np.seterr(divide='ignore', invalid='ignore')
-
     # Calculate NDVI
     ndvi = (nir.astype(float) - red.astype(float)) / (nir + red)
     return ndvi
 
 #for regions with high content of atmospheric aerosol (e.g. rain, fog, dust, smoke, air pollution)
 def calculate_arvi(nir, red, blue):
-
     # Allow division by zero
-    np.seterr(divide='ignore', invalid='ignore')
-    
+    np.seterr(divide='ignore', invalid='ignore')  
     # Calculate NDVI
     arvi = (nir-(2*red)+blue)/(nir+(2*red)+blue)
-
     return arvi
     
 
 #for monitoring the impact of seasonality, environmental stresses, applied pesticides on plant health.
 def calculate_gci(nir, green):
-
     # Allow division by zero
     np.seterr(divide='ignore', invalid='ignore')
-    
     # Calculate NDVI
     gci = nir/green - 1
-    
     return gci
     
 if __name__ == "__main__":
@@ -186,7 +177,7 @@ if __name__ == "__main__":
     
     #%%
     # set the numbers of the selected pixel in the dataset
-    n_samples = 10
+    n_samples = 40000
     n_crops = 13
     
     indexes = np.zeros((n_crops,n_samples))
@@ -199,12 +190,27 @@ if __name__ == "__main__":
     #%%
     
     duration = 71
-    n_channels = 4
+    n_channels = 7
     output = np.zeros((n_crops,n_samples,duration,n_channels))
     #insert RGB and NIR to the ouput matrix 
     for i in range(13):
-        output[i,:,:,:] = traindataset[indexes[i,:]]
+        temp = traindataset[indexes[i,:]]
+        output[i,:,:,:4] = temp#traindataset[indexes[i,:]]
+        #ndvi
+        output[i,:,:,4]=calculate_ndvi(temp[:,:,0].detach().cpu().numpy(), temp[:,:,3].detach().cpu().numpy())
+        #arvi
+        output[i,:,:,5]=calculate_arvi(temp[:,:,3].detach().cpu().numpy(), temp[:,:,0].detach().cpu().numpy(),temp[:,:,2].detach().cpu().numpy())
+        #gci
+        output[i,:,:,5]=calculate_gci(temp[:,:,3].detach().cpu().numpy(), temp[:,:,1].detach().cpu().numpy())
         
+    
+
+
+        
+        
+
+
+
     # select which is the step to select the pixels for validation  
     n_pix_val = 3
     
@@ -214,11 +220,11 @@ if __name__ == "__main__":
     training  = output[:,mask,:,:]
     
 
-    h5builder('training.hdf5', 'DATA', training)
-    h5builder('training.hdf5', 'GT', labels)
+    h5builder('training_40000.hdf5', 'DATA', training)
+    h5builder('training_40000.hdf5', 'GT', labels)
     
-    h5builder('validation.hdf5', 'DATA', validation)
-    h5builder('validation.hdf5', 'GT', labels)
+    h5builder('validation_40000.hdf5', 'DATA', validation)
+    h5builder('validation_40000.hdf5', 'GT', labels)
     
     
     
