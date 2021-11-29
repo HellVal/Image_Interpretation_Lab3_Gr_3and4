@@ -10,7 +10,9 @@ import torch
 import numpy as np
 import h5py
 import os.path
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import random 
+#from sklearn.model_selection import train_test_split
 
 class preprocessing(torch.utils.data.Dataset):
     def __init__(self, path, time_downsample_factor=1, num_channel=4):
@@ -92,6 +94,10 @@ label_names_all = ['Unknown', 'Apples', 'Beets', 'Berries', 'Biodiversity area',
 labels = [21, 51, 20, 27, 38, 49, 50, 45, 30, 48, 42, 46, 36]
 labels_name = ['Meadow','Winter wheat','Maize','Pasture','Sugar beet','Winter barley',
                     'Winter rapeseed','Vegetables','Potatoes','Wheat','Sunflowers','Vines','Spelt']
+zip_iterator = zip(labels, labels_name)
+
+used_labels = dict(zip_iterator)
+
 # for i in range(len(labels_name)):
 #     good_labels.append(labels_all[label_names_all.index(labels_name[i])])
     
@@ -156,6 +162,36 @@ def calculate_gci(nir, green):
     # Calculate NDVI
     gci = nir/green - 1
     return gci
+
+
+def quicksort(array):
+    # If the input array contains fewer than two elements,
+    # then return it as the result of the function
+    if len(array) < 2:
+        return array
+
+    low, same, high = [], [], []
+
+    # Select your `pivot` element randomly
+    pivot = array[random.randint(0, len(array) - 1)]
+
+    for item in array:
+        # Elements that are smaller than the `pivot` go to
+        # the `low` list. Elements that are larger than
+        # `pivot` go to the `high` list. Elements that are
+        # equal to `pivot` go to the `same` list.
+        if item < pivot:
+            low.append(item)
+        elif item == pivot:
+            same.append(item)
+        elif item > pivot:
+            high.append(item)
+
+    # The final result combines the sorted `low` list
+    # with the `same` list and the sorted `high` list
+    return quicksort(low) + same + quicksort(high)
+
+
     
 if __name__ == "__main__":
 
@@ -177,42 +213,48 @@ if __name__ == "__main__":
     
     #%%
     # set the numbers of the selected pixel in the dataset
-    n_samples = 40000
-    n_crops = 13
+    n_samples = 100
+    n_crops = len(label_list)
     
     indexes = np.zeros((n_crops,n_samples))
-    
-    # to select the first n_samples in the code 
-    for i in range(13):
+            
+    # # to select the first n_samples in the code 
+    # for i in range(n_crops):
+    #     temp = np.where(np.array(label_list)[i] == np.array(gt_list_all))
+    #     indexes[i,:] = temp[0][:n_samples]
+ 
+    #random selection of the pixels
+    for i in range(n_crops):
+        #get all pixels of the acutal crop
         temp = np.where(np.array(label_list)[i] == np.array(gt_list_all))
-        indexes[i,:] = temp[0][:n_samples]
+        # select random n_sample out of this pixels and sort it
+        indexes[i,:] = np.array(quicksort(np.array(random.sample(temp[0].tolist(),n_samples))))
+        print(used_labels[labels[i]]+' random pixel selection done!')
         
     #%%
     
+    
+    channels = ['R','G','B','NIR','NDVI','ARVI','GCI']
     duration = 71
-    n_channels = 7
+    n_channels = len(channels)
+    
+    
+    #genereate outputMatrix
     output = np.zeros((n_crops,n_samples,duration,n_channels))
-    #insert RGB and NIR to the ouput matrix 
-    for i in range(13):
+
+    for i in range(n_crops):
         temp = traindataset[indexes[i,:]]
-        output[i,:,:,:4] = temp#traindataset[indexes[i,:]]
-        #ndvi
-        output[i,:,:,4]=calculate_ndvi(temp[:,:,0].detach().cpu().numpy(), temp[:,:,3].detach().cpu().numpy())
-        #arvi
-        output[i,:,:,5]=calculate_arvi(temp[:,:,3].detach().cpu().numpy(), temp[:,:,0].detach().cpu().numpy(),temp[:,:,2].detach().cpu().numpy())
-        #gci
-        output[i,:,:,5]=calculate_gci(temp[:,:,3].detach().cpu().numpy(), temp[:,:,1].detach().cpu().numpy())
-        
+        output[i,:,:,:4] = temp
+        output[i,:,:,4] = calculate_ndvi(temp[:,:,0].detach().cpu().numpy(), temp[:,:,3].detach().cpu().numpy())
+        output[i,:,:,5] = calculate_arvi(temp[:,:,3].detach().cpu().numpy(), temp[:,:,0].detach().cpu().numpy(),temp[:,:,2].detach().cpu().numpy())
+        output[i,:,:,6] = calculate_gci(temp[:,:,3].detach().cpu().numpy(), temp[:,:,1].detach().cpu().numpy())
+        print(used_labels[labels[i]]+' feature computation done!')
+    
     
 
-
-        
-        
-
-
-
+         
     # select which is the step to select the pixels for validation  
-    n_pix_val = 3
+    n_pix_val = 4
     
     validation = output[:,::n_pix_val,:,:]
     #mask to skip the validation data from the training data
@@ -220,11 +262,11 @@ if __name__ == "__main__":
     training  = output[:,mask,:,:]
     
 
-    h5builder('training_40000.hdf5', 'DATA', training)
-    h5builder('training_40000.hdf5', 'GT', labels)
+    # h5builder('training_40000_random.hdf5', 'DATA', training)
+    # h5builder('training_40000_random.hdf5', 'GT', labels)
     
-    h5builder('validation_40000.hdf5', 'DATA', validation)
-    h5builder('validation_40000.hdf5', 'GT', labels)
+    # h5builder('validation_40000_random.hdf5', 'DATA', validation)
+    # h5builder('validation_40000_random.hdf5', 'GT', labels)
     
     
     
