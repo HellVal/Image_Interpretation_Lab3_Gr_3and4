@@ -6,6 +6,7 @@ Created on Thu Nov 25 10:18:09 2021
 """
 
 #Loading packages
+import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -26,10 +27,40 @@ import sys
 from pprint import pprint
 
 #Loading data
+root = r"H:/Desktop/II lab3/training_10000.hdf5"
+hf = h5py.File(root, 'r')
+
+#%%
+# reading the data
+data = hf['DATA']
+gt = hf['GT']
+
+# number of pixels and classes
+nPixels = data.shape[1]
+nClasses = gt.shape[0]
+nDays = data.shape[2]
+nFeatures = data.shape[3]
+
+x_train1 = np.stack(data, axis = 0)
+
+featuresUsed = [0,1,2,3,4,5,6]
+classes = [0,1,2,3,4,5,6,7,8,9,10,11,12]
+#%%
+xTrain = np.empty((0,nDays * nFeatures),dtype = 'float64')
+
 
 #Building the feature vector
-x_train = 
-lasbels_train = 
+for j in classes:
+    temp = np.empty((nPixels,0))
+    for i in featuresUsed:
+        temp = np.append(temp, data[j,:,:,i], axis = 1)
+    
+    xTrain = np.append(xTrain, temp, axis = 0)
+    
+
+labels_train = np.repeat(gt, nPixels)
+
+#%%
 #Initialising classifier
 names = [
     "Nearest Neighbors",
@@ -60,6 +91,17 @@ classifier = [
 #Training the classifier
 for name, clf in zip(names, classifiers):
         ax = plt.subplot(len(datasets), len(classifiers) + 1, i)
-        clf.fit(x_train, lasbels_train)
-        
+        clf.fit(xTrain, lasbels_train)
+
+#%%
+indices = np.where(np.all(~np.isnan(xTrain), axis = 1))
+xTrain2 = xTrain[indices[0],:]
+labels_train2 = labels_train[indices[0]]
+#%%
+classifier = KNeighborsClassifier(3)
+classifier.fit(xTrain2, labels_train2)
+
+#%% Validation data
+rootVal = r"H:/Desktop/II lab3/validation_10000.hdf5"
+
 #Evaluation
