@@ -27,10 +27,10 @@ import sys
 from pprint import pprint
 
 #Loading data
-root = r"H:/Desktop/II lab3/training_10000.hdf5"
+root = r"P:/pf/pfstud/II_Group3/Lab 3/training_40000_random.hdf5"
 ht = h5py.File(root, 'r')
 
-rootVal = r"H:/Desktop/II lab3/validation_10000.hdf5"
+rootVal = r"P:/pf/pfstud/II_Group3/Lab 3/validation_40000_random.hdf5"
 hv = h5py.File(rootVal, 'r')
 
 featuresUsed = [0,1,2,3,4,5,6]
@@ -112,18 +112,18 @@ names = [
     "QDA",
 ]
 
-# classifier = [
-#     KNeighborsClassifier(3),
-#     SVC(kernel="linear", C=0.025),
-#     SVC(gamma=2, C=1),
-#     GaussianProcessClassifier(1.0 * RBF(1.0)),
-#     DecisionTreeClassifier(max_depth=5),
-#     RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
-#     MLPClassifier(alpha=1, max_iter=1000),
-#     AdaBoostClassifier(),
-#     GaussianNB(),
-#     QuadraticDiscriminantAnalysis(),
-# ]
+classifier = [
+    KNeighborsClassifier(3),
+    SVC(kernel="linear", C=0.025),
+    SVC(gamma=2, C=1),
+    GaussianProcessClassifier(1.0 * RBF(1.0)),
+    DecisionTreeClassifier(max_depth=5),
+    RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+    MLPClassifier(alpha=1, max_iter=1000),
+    AdaBoostClassifier(),
+    GaussianNB(),
+    QuadraticDiscriminantAnalysis(),
+]
 
 # #Training the classifier
 # for name, clf in zip(names, classifiers):
@@ -132,7 +132,8 @@ names = [
 
 
 #%%
-classifier = SVC(kernel="linear", C=0.025)
+classfierNumber = 1
+classifier = classifier[classfierNumber]
 classifier = classifier.fit(xTrain, labels_train)
 
 #%% Classification of Validation data
@@ -160,10 +161,13 @@ producersAccuracySvm = truePositivesSvm / labelPerClass
 usersAccuracySvm = truePositivesSvm / predPerClassSvm
 
 #%% Showing the results
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=gtVal)
-disp.plot()
 
-output_file_name = names[1] + '.txt'
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=gtVal)
+fig, ax = plt.subplots(figsize=(10,10))
+disp.plot(ax=ax)
+
+
+output_file_name = names[classfierNumber] + '.txt'
 
 if os.path.exists(output_file_name):
     os.remove(output_file_name)
@@ -172,7 +176,7 @@ original_stdout = sys.stdout
 with open(output_file_name, 'w') as f:
     sys.stdout = f
 
-    print(names[1],'\n')
+    print(names[classfierNumber],'\n')
     print(f'Overall accuracy: {overallAccuracySvm}')
     print(f'Producer\'s accuracy: {producersAccuracySvm}')
     print(f'User\'s accuracy: {usersAccuracySvm}')
