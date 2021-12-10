@@ -10,10 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import PIL.Image
 
-path = '/Users/valerie.hellmueller/Documents/GitHub/Image_Interpretation_Lab3_Gr_3and4/Pfadi.png'
-img = PIL.Image.open(path)
 
-#data_shape = len(img)
 
 
 # Data analyse
