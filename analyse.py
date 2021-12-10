@@ -47,7 +47,7 @@ def show_zero(picture):
 
 
 zeros_index = show_zero(img)
-zero_index = int(zero_index == True)
+zeros_index = int(zeros_index == True)
 number_of_zeros = np.size(zeros_index)
 
 # plot
