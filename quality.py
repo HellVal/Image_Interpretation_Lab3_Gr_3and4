@@ -8,12 +8,12 @@ Created on Thu Dec  9 09:05:49 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
-import PIL.Image
 import h5py
 
 
 # Input Parameters
-root = r'/Users/valerie.hellmueller/Documents/GitHub/Image_Interpretation_Lab3_Gr_3and4'
+
+root = r'/Users/valerie.hellmueller/Documents/GitHub/Image_Interpretation_Lab3_Gr_3and4' #change path
 files = ["/training_40000_random.hdf5"]
 
 
