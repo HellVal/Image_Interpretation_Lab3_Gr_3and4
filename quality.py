@@ -31,7 +31,7 @@ for j in range(1): #img_names.size    len(img_names)
      
 
     rgb = np.zeros((img[1].shape[0],img[1].shape[1] ,4))
-    mean = np.zeros((img[1].shape[0],img[1].shape[1] ,4))
+
 
 for i in range(img.shape[0]):
         # Taking images out
