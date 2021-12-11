@@ -60,7 +60,7 @@ data_shape = len(rgb)
 
 
 a = np.ones((data_shape, data_shape))
-a[a[nan_index]]=0
+#a[a[nan_index]]=0
 
 #plot
 
