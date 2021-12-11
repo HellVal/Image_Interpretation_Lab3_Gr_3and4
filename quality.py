@@ -12,8 +12,7 @@ import h5py
 
 
 # Input Parameters
-
-root = r'/Users/valerie.hellmueller/Documents/GitHub/Image_Interpretation_Lab3_Gr_3and4' #change path
+root = r'/Users/valerie.hellmueller/Documents/GitHub/Image_Interpretation_Lab3_Gr_3and4'
 files = ["/training_40000_random.hdf5"]
 
 
@@ -23,20 +22,22 @@ h5 = h5py.File(file, 'r')
 (h5.keys())
 
 img_names = ['DATA']
-#data_shape = len(img)
+
 
 
 for j in range(1): #img_names.size    len(img_names)
     img = h5[img_names[j]]
      
-
     rgb = np.zeros((img[1].shape[0],img[1].shape[1] ,4))
-
+    
 
 for i in range(img.shape[0]):
         # Taking images out
         
      rgb = img[i]
+     
+     
+
 
 # %% Data anlyse
 
@@ -54,16 +55,16 @@ nan_index, number_of_nan = show_nan(rgb)
 
 #nan_index = int(nan_index == True)
 
+data_shape = len(rgb)
 
 
 
-
-#a = np.eye(data_shape,data_shape)
-#a[a[nan_index]]=0
+a = np.ones((data_shape, data_shape))
+a[a[nan_index]]=0
 
 #plot
 
-#plt.imshow(a)
+plt.imshow(a)
 
 #%%
 
