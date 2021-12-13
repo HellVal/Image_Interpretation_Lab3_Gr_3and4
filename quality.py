@@ -68,7 +68,7 @@ data_shape = len(rgb)
 
 
 #a = np.histogram(nan_index[:,1], bins = 'auto')
-plt.hist(nan_index[:,1], bins = 71)
+pplt.hist(nan_index[:,1], bins = np.arange(70))
 plt.title("Histogram of NaN per Picture")
 plt.show()
 
