@@ -14,4 +14,7 @@
   * reshape of classifier result for final visualization
 * visulize_adapted
   * adapted version of provided visulize_code
-
+* Classification_three_methods
+  * three classification methods based on three classifiers: both for validation and test dataset
+* visualize_multi_bar
+  * visualization for accuracy assessment for three classification methods based on three classifiers
